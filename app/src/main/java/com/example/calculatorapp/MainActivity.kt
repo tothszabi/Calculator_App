@@ -7,6 +7,10 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 
+private const val State_Pending_operation = "PendingOperation"
+private const val State_operand1 = "Operand1"
+private  const val State_Operand1_Stored = "Operand1_Stroed"
+
 class MainActivity : AppCompatActivity() {
 
     private lateinit var result: EditText
@@ -45,7 +49,7 @@ class MainActivity : AppCompatActivity() {
         val buttonMinus = findViewById<Button>(R.id.btMinus)
         val buttonPlus = findViewById<Button>(R.id.btPlus)
 
-        val listner = View.OnClickListener { v->
+        val listner = View.OnClickListener { v ->
             val b = v as Button
             newNum.append(b.text)
         }
@@ -61,11 +65,13 @@ class MainActivity : AppCompatActivity() {
         button9.setOnClickListener(listner)
         buttonDot.setOnClickListener(listner)
 
-        val opListner = View.OnClickListener { v->
+        val opListner = View.OnClickListener { v ->
             val operation = (v as Button).text.toString()
-            val value = newNum.text.toString()
-            if(value.isNotEmpty()){
-                performOperation(value , operation)
+            try {
+                val value = newNum.text.toString().toDouble()
+                performOperation(value, operation)
+            } catch (e: java.lang.NumberFormatException) {
+                newNum.setText("")
             }
             pendingOperation = operation
             diasplayOperation.text = pendingOperation
@@ -77,20 +83,20 @@ class MainActivity : AppCompatActivity() {
         buttonDivide.setOnClickListener(opListner)
     }
 
-    private fun performOperation(value: String , operation: String){
-        if(operand1 == null){
-            operand1 = value.toDouble()
+    private fun performOperation(value: Double, operation: String) {
+        if (operand1 == null) {
+            operand1 = value
         } else {
-            operand2 = value.toDouble()
-            if(pendingOperation == "="){
+            operand2 = value
+            if (pendingOperation == "=") {
                 pendingOperation = operation
             }
-            when(pendingOperation){
-                "="-> operand1 = operand2
-                "/"-> if(operand2 == 0.0){
+            when (pendingOperation) {
+                "=" -> operand1 = operand2
+                "/" -> if (operand2 == 0.0) {
                     operand1 = Double.NaN  // handle to divide by 0
                 } else {
-                    operand1 = operand1!! /operand2
+                    operand1 = operand1!! / operand2
                 }
                 "*" -> operand1 = operand1!! * operand2
                 "-" -> operand1 = operand1!! - operand2
@@ -99,5 +105,25 @@ class MainActivity : AppCompatActivity() {
         }
         result.setText(operand1.toString())
         newNum.setText("")
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        if(operand1 !=null){
+            outState.putDouble(State_operand1 , operand1!!)
+            outState.putBoolean(State_Operand1_Stored , true)
+        }
+        outState .putString(State_Pending_operation , pendingOperation)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        operand1 = if(savedInstanceState.getBoolean(State_Pending_operation , false)){
+            savedInstanceState.getDouble(State_operand1)
+        } else {
+            null
+        }
+        pendingOperation = savedInstanceState.getString(State_Pending_operation).toString()
+        diasplayOperation.text = pendingOperation
     }
 }
