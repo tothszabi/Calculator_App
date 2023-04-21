@@ -6,6 +6,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import io.bitrise.calculator.R
 
 private const val State_Pending_operation = "PendingOperation"
 private const val State_operand1 = "Operand1"
