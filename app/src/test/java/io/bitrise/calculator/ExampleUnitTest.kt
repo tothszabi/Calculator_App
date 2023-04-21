@@ -1,4 +1,4 @@
-package com.example.calculatorapp
+package io.bitrise.calculator
 
 import org.junit.Test
 
