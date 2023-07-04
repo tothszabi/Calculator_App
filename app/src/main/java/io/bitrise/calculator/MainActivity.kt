@@ -23,6 +23,8 @@ class MainActivity : AppCompatActivity() {
     private var pendingOperation = "="
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        throw RuntimeException("This is a crash")
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
